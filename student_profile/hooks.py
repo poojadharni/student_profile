@@ -20,7 +20,10 @@ app_license = "mit"
 # 		"has_permission": "student_profile.api.permission.has_app_permission"
 # 	}
 # ]
+# hooks.py
 
+after_install = "student_profile.install.apply_overrides"
+after_migrate = "student_profile.install.apply_overrides"
 # Includes in <head>
 # ------------------
 
