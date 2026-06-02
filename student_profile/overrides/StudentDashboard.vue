@@ -8,7 +8,7 @@
                 <label class="text-xs font-semibold text-gray-700 block mb-2">
                     {{ studentData?.student_name || 'Student Profile' }} </label>
                 <!-- STUDENT IMAGE -->
-                <img :src="studentData?.image ||
+                <img class="w-full h-52 object-cover rounded-lg" :src="studentData.image ||
                     'https://images.unsplash.com/photo-1619895862022-09114b41f16f?q=80&w=1200&auto=format&fit=crop'
                     " />
             </div>
@@ -377,23 +377,70 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-
-const studentData = ref({})
-const selectedStudent = ref('')
+import { ref, onMounted, computed } from 'vue'
 
 /* ----------------------------------
-   STUDENT DETAILS
+   STUDENT DATA
 ---------------------------------- */
-const details = ref([
-    { label: 'Student ID', value: '-' },
-    { label: 'Full Name', value: '-' },
-    { label: 'Grade', value: '-' },
-    { label: 'Age', value: '-' },
-    { label: 'Gender', value: '-' },
-    { label: 'Nationality', value: 'Indian' },
-    { label: 'Email Address', value: '-' },
+const studentData = ref({})
+
+const details = computed(() => [
+    {
+        label: 'Student ID',
+        value: studentData.value.name || '-',
+    },
+    {
+        label: 'Full Name',
+        value: studentData.value.student_name || '-',
+    },
+    {
+        label: 'Grade',
+        value:
+            studentData.value.current_program?.program ||
+            studentData.value.custom_class ||
+            '-',
+    },
+    {
+        label: 'Age',
+        value: studentData.value.age || '-',
+    },
+    {
+        label: 'Gender',
+        value: studentData.value.gender || '-',
+    },
+    {
+        label: 'Nationality',
+        value: studentData.value.nationality || 'Indian',
+    },
+    {
+        label: 'Email Address',
+        value:
+            studentData.value.student_email_id ||
+            studentData.value.email ||
+            '-',
+    },
 ])
+
+/* ----------------------------------
+   FETCH STUDENT INFO
+---------------------------------- */
+const fetchStudentInfo = async () => {
+    try {
+        const response = await fetch(
+            '/api/method/education.education.api.get_student_info'
+        )
+
+        const result = await response.json()
+
+        console.log('Student Data:', result)
+
+        if (result.message) {
+            studentData.value = result.message
+        }
+    } catch (error) {
+        console.error('Student Info Error:', error)
+    }
+}
 
 /* ----------------------------------
    FEE DETAILS
@@ -407,128 +454,15 @@ const feeDetails = ref([
     { month: 'June', total: '0', paid: '0', due: '0' },
 ])
 
-/* ----------------------------------
-   TOTAL SUMMARY
----------------------------------- */
 const totalFee = ref(0)
 const paidFee = ref(0)
 const dueFee = ref(0)
 
 /* ----------------------------------
-   FETCH STUDENTS
----------------------------------- */
-/* ----------------------------------
-   FETCH LOGGED IN STUDENT
----------------------------------- */
-const fetchStudentInfo = async () => {
-    try {
-
-        const res = await fetch(
-            '/api/method/education.education.api.get_student_info'
-        )
-
-        const data = await res.json()
-
-        console.log('Student Data:', data)
-
-        const student = data.message || {}
-
-        studentData.value = student
-
-        details.value = [
-            {
-                label: 'Student ID',
-                value:
-                    student.student ||
-                    student.name ||
-                    '-',
-            },
-            {
-                label: 'Full Name',
-                value:
-                    student.student_name ||
-                    '-',
-            },
-            {
-                label: 'Grade',
-                value:
-                    student.program ||
-                    student.course ||
-                    '-',
-            },
-            {
-                label: 'Age',
-                value:
-                    student.age ||
-                    '-',
-            },
-            {
-                label: 'Gender',
-                value:
-                    student.gender ||
-                    '-',
-            },
-            {
-                label: 'Nationality',
-                value:
-                    student.nationality ||
-                    'Indian',
-            },
-            {
-                label: 'Email Address',
-                value:
-                    student.student_email_id ||
-                    student.email ||
-                    '-',
-            },
-        ]
-
-    } catch (error) {
-
-        console.error(
-            'Student Info Error:',
-            error
-        )
-    }
-}
-
-/* ----------------------------------
-   UPDATE STUDENT DETAILS
----------------------------------- */
-const updateStudentDetails = (student) => {
-
-    details.value = [
-        { label: 'Student ID', value: student.name || '-' },
-        { label: 'Full Name', value: student.student_name || '-' },
-        { label: 'Grade', value: '10th Standard' },
-        { label: 'Age', value: '16' },
-        { label: 'Gender', value: 'Female' },
-        { label: 'Nationality', value: 'Indian' },
-        { label: 'Email Address', value: 'student@gmail.com' },
-    ]
-}
-
-/* ----------------------------------
-   DROPDOWN CHANGE
----------------------------------- */
-const handleStudentChange = () => {
-
-    const student = students.value.find(
-        (s) => s.name === selectedStudent.value
-    )
-
-    if (student) {
-        updateStudentDetails(student)
-    }
-}
-
-/* ----------------------------------
-   FETCH FEE SUMMARY
+   FETCH FEES
 ---------------------------------- */
 const fetchFeeSummary = async () => {
-
     try {
-
         const res = await fetch(
             `/api/method/frappe.desk.reportview.get?doctype=Sales Invoice&fields=${encodeURIComponent(
                 JSON.stringify([
@@ -556,9 +490,7 @@ const fetchFeeSummary = async () => {
         let due = 0
 
         if (data.message?.values) {
-
             data.message.values.forEach((row) => {
-
                 const grandTotal = Number(row[0]) || 0
                 const outstanding = Number(row[1]) || 0
                 const status = row[2]
@@ -571,7 +503,6 @@ const fetchFeeSummary = async () => {
                 })
 
                 if (monthMap[month]) {
-
                     monthMap[month].total += grandTotal
 
                     if (status === 'Paid') {
@@ -594,29 +525,16 @@ const fetchFeeSummary = async () => {
         feeDetails.value = Object.keys(monthMap).map(
             (month) => ({
                 month,
-                total: monthMap[month].total.toLocaleString(
-                    'en-IN'
-                ),
-                paid: monthMap[month].paid.toLocaleString(
-                    'en-IN'
-                ),
-                due: monthMap[month].due.toLocaleString(
-                    'en-IN'
-                ),
+                total: monthMap[month].total.toLocaleString('en-IN'),
+                paid: monthMap[month].paid.toLocaleString('en-IN'),
+                due: monthMap[month].due.toLocaleString('en-IN'),
             })
         )
 
-        totalFee.value =
-            total.toLocaleString('en-IN')
-
-        paidFee.value =
-            paid.toLocaleString('en-IN')
-
-        dueFee.value =
-            due.toLocaleString('en-IN')
-
+        totalFee.value = total.toLocaleString('en-IN')
+        paidFee.value = paid.toLocaleString('en-IN')
+        dueFee.value = due.toLocaleString('en-IN')
     } catch (error) {
-
         console.error('Fee API Error:', error)
     }
 }
@@ -634,7 +552,6 @@ const notifications = [
         message:
             'Your June tuition fee payment of ₹5,000 is pending.',
     },
-
     {
         id: 2,
         title: 'Exam Schedule',
@@ -644,7 +561,6 @@ const notifications = [
         message:
             'Mid-term examinations will begin from July 15th.',
     },
-
     {
         id: 3,
         title: 'Attendance Alert',
@@ -654,7 +570,6 @@ const notifications = [
         message:
             'Attendance percentage dropped below 85%.',
     },
-
     {
         id: 4,
         title: 'Sports Event',
@@ -671,14 +586,12 @@ const showModal = ref(false)
 const selectedNotification = ref({})
 
 const openNotification = (notification) => {
-
     selectedNotification.value = notification
-
     showModal.value = true
 }
 
 /* ----------------------------------
-   ATTENDANCE CHART
+   CHARTS
 ---------------------------------- */
 const attendanceSeries = [
     {
@@ -701,7 +614,6 @@ const attendanceChartOptions = {
             show: false,
         },
     },
-
     plotOptions: {
         bar: {
             horizontal: true,
@@ -709,30 +621,19 @@ const attendanceChartOptions = {
             barHeight: '55%',
         },
     },
-
     colors: ['#43d3ac', '#ef6a6a', '#facc15'],
-
     dataLabels: {
         enabled: false,
     },
-
     legend: {
         show: false,
     },
-
     xaxis: {
         categories: [''],
         max: 100,
     },
-
-    grid: {
-        borderColor: '#eee',
-    },
 }
 
-/* ----------------------------------
-   SUBJECT GRADE
----------------------------------- */
 const gradeSeries = [
     {
         name: 'Grades',
@@ -746,26 +647,20 @@ const gradeChartOptions = {
             show: false,
         },
     },
-
     colors: ['#3fc8be'],
-
     plotOptions: {
         bar: {
             borderRadius: 4,
             columnWidth: '55%',
         },
     },
-
     dataLabels: {
         enabled: true,
-
         formatter: (val) => `${val}%`,
     },
-
     yaxis: {
         max: 100,
     },
-
     xaxis: {
         categories: [
             'Arts',
@@ -775,19 +670,13 @@ const gradeChartOptions = {
             'Science',
         ],
     },
-
-    grid: {
-        borderColor: '#eee',
-    },
 }
 
 /* ----------------------------------
    PAGE LOAD
 ---------------------------------- */
 onMounted(async () => {
-
     await fetchStudentInfo()
-
     await fetchFeeSummary()
 })
 </script>
