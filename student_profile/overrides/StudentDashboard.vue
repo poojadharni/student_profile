@@ -703,31 +703,41 @@ const fetchFeeSummary = async () => {
 
 const fetchAttendanceSummary = async () => {
     try {
+
+        if (!studentData.value.name) return
+
+        const student = studentData.value.name
+
+        const studentGroup =
+            studentData.value.student_group ||
+            studentData.value.current_student_group ||
+            ''
+
         const response = await fetch(
-            '/api/method/education.education.api.get_student_attendance'
+            `/api/method/education.education.api.get_student_attendance?student=${encodeURIComponent(
+                student
+            )}&student_group=${encodeURIComponent(
+                studentGroup
+            )}`
         )
 
         const result = await response.json()
 
         console.log('Attendance API:', result)
 
-        const records = result.message || []
+        const rows = result.message || []
 
-        let present = 0
-        let absent = 0
-        let leave = 0
+        const present = rows.filter(
+            r => r.status === 'Present'
+        ).length
 
-        records.forEach((row) => {
-            const status = (row.status || '').toLowerCase()
+        const absent = rows.filter(
+            r => r.status === 'Absent'
+        ).length
 
-            if (status === 'present') {
-                present++
-            } else if (status === 'absent') {
-                absent++
-            } else if (status === 'leave') {
-                leave++
-            }
-        })
+        const leave = rows.filter(
+            r => r.status === 'Leave'
+        ).length
 
         attendanceSeries.value = [
             {
@@ -748,17 +758,14 @@ const fetchAttendanceSummary = async () => {
             ...attendanceChartOptions.value,
             xaxis: {
                 categories: ['Attendance'],
-                max: Math.max(
-                    present + absent + leave,
-                    10
-                ),
-            },
+                max: present + absent + leave
+            }
         }
+
     } catch (error) {
-        console.error('Attendance API Error:', error)
+        console.error('Attendance Error:', error)
     }
 }
-
 /* ----------------------------------
    NOTIFICATIONS
 ---------------------------------- */
