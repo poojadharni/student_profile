@@ -455,9 +455,9 @@ const fetchStudentGrades = async () => {
                     'total_score',
                     'maximum_score'
                 ]),
-                filters: JSON.stringify([
-                    ['student', '=', studentData.value.name]
-                ]),
+                filters: JSON.stringify({
+                    student: studentData.value.name
+                }),
                 limit_page_length: 100
             })
         )
