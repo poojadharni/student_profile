@@ -660,74 +660,71 @@ const fetchNotifications = async () => {
 ---------------------------------- */
 const feeDetails = ref([])
 
-const totalFee = ref(0)
-const paidFee = ref(0)
-const dueFee = ref(0)
+// const totalFee = ref(0)
+// const paidFee = ref(0)
+// const dueFee = ref(0)
 
 /* ----------------------------------
    FETCH FEES
 ---------------------------------- */
 const fetchFeeSummary = async () => {
     try {
+
+        if (!studentData.value.name) return
+
         const response = await fetch(
-            '/api/method/education.education.api.get_student_invoices'
+            `/api/method/education.education.api.get_student_invoices?student=${encodeURIComponent(studentData.value.name)}`
         )
 
         const result = await response.json()
 
+        console.log('Fee API:', result)
+
         const invoices = result.message?.invoices || []
 
-        const monthMap = {}
+        feeDetails.value = invoices.map(invoice => ({
+            month: invoice.payment_date
+                ? new Date(invoice.payment_date).toLocaleString('default', {
+                    month: 'long'
+                })
+                : '-',
 
-        let total = 0
-        let paid = 0
-        let due = 0
-
-        invoices.forEach((inv) => {
-
-            const amount = Number(
-                String(inv.amount)
+            total: Number(
+                String(invoice.amount)
                     .replace('₹', '')
                     .replace(/,/g, '')
-                    .trim()
-            )
+            ),
 
-            const month = new Date(
-                inv.payment_date
-            ).toLocaleString('default', {
-                month: 'long'
-            })
+            paid:
+                invoice.status === 'Paid'
+                    ? Number(
+                        String(invoice.amount)
+                            .replace('₹', '')
+                            .replace(/,/g, '')
+                    )
+                    : 0,
 
-            if (!monthMap[month]) {
-                monthMap[month] = {
-                    total: 0,
-                    paid: 0,
-                    due: 0,
-                }
-            }
+            due:
+                invoice.status !== 'Paid'
+                    ? Number(
+                        String(invoice.amount)
+                            .replace('₹', '')
+                            .replace(/,/g, '')
+                    )
+                    : 0,
+        }))
 
-            monthMap[month].total += amount
+        totalFee.value = feeDetails.value
+            .reduce((sum, row) => sum + row.total, 0)
+            .toLocaleString('en-IN')
 
-            if (inv.status === 'Paid') {
-                monthMap[month].paid += amount
-                paid += amount
-            }
+        paidFee.value = feeDetails.value
+            .reduce((sum, row) => sum + row.paid, 0)
+            .toLocaleString('en-IN')
 
-            total += amount
-        })
-
-        feeDetails.value = Object.keys(monthMap).map(
-            (month) => ({
-                month,
-                total: monthMap[month].total.toLocaleString('en-IN'),
-                paid: monthMap[month].paid.toLocaleString('en-IN'),
-                due: monthMap[month].due.toLocaleString('en-IN'),
-            })
-        )
-
-        totalFee.value = total.toLocaleString('en-IN')
-        paidFee.value = paid.toLocaleString('en-IN')
-        dueFee.value = due.toLocaleString('en-IN')
+        dueFee.value = feeDetails.value
+            .reduce((sum, row) => sum + row.due, 0)
+            .toLocaleString('en-IN')
 
     } catch (error) {
         console.error('Fee API Error:', error)
