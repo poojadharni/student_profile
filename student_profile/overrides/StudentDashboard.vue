@@ -658,14 +658,7 @@ const fetchNotifications = async () => {
 /* ----------------------------------
    FEE DETAILS
 ---------------------------------- */
-const feeDetails = ref([
-    { month: 'January', total: '0', paid: '0', due: '0' },
-    { month: 'February', total: '0', paid: '0', due: '0' },
-    { month: 'March', total: '0', paid: '0', due: '0' },
-    { month: 'April', total: '0', paid: '0', due: '0' },
-    { month: 'May', total: '0', paid: '0', due: '0' },
-    { month: 'June', total: '0', paid: '0', due: '0' },
-])
+const feeDetails = ref([])
 
 const totalFee = ref(0)
 const paidFee = ref(0)
@@ -676,24 +669,13 @@ const dueFee = ref(0)
 ---------------------------------- */
 const fetchFeeSummary = async () => {
     try {
-        if (!studentData.value.name) return
-
         const response = await fetch(
-            '/api/method/education.education.api.get_student_invoices',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    student: studentData.value.name,
-                }),
-            }
+            '/api/method/education.education.api.get_student_invoices'
         )
 
         const result = await response.json()
 
-        const invoices = result.message || []
+        const invoices = result.message?.invoices || []
 
         const monthMap = {}
 
@@ -702,15 +684,20 @@ const fetchFeeSummary = async () => {
         let due = 0
 
         invoices.forEach((inv) => {
-            const grandTotal = Number(inv.grand_total || 0)
-            const outstanding = Number(inv.outstanding_amount || 0)
-            const status = inv.status
 
-            const month = new Date(inv.creation).toLocaleString('default', {
-                month: 'long',
+            const amount = Number(
+                String(inv.amount)
+                    .replace('₹', '')
+                    .replace(/,/g, '')
+                    .trim()
+            )
+
+            const month = new Date(
+                inv.payment_date
+            ).toLocaleString('default', {
+                month: 'long'
             })
 
-            // 👉 create month only when data exists
             if (!monthMap[month]) {
                 monthMap[month] = {
                     total: 0,
@@ -719,32 +706,31 @@ const fetchFeeSummary = async () => {
                 }
             }
 
-            monthMap[month].total += grandTotal
+            monthMap[month].total += amount
 
-            if (status === 'Paid') {
-                monthMap[month].paid += grandTotal
+            if (inv.status === 'Paid') {
+                monthMap[month].paid += amount
+                paid += amount
             }
 
-            monthMap[month].due += outstanding
-
-            total += grandTotal
-            if (status === 'Paid') paid += grandTotal
-            due += outstanding
+            total += amount
         })
 
-        // 👉 convert only existing months (no empty months)
-        feeDetails.value = Object.keys(monthMap).map((month) => ({
-            month,
-            total: monthMap[month].total.toLocaleString('en-IN'),
-            paid: monthMap[month].paid.toLocaleString('en-IN'),
-            due: monthMap[month].due.toLocaleString('en-IN'),
-        }))
+        feeDetails.value = Object.keys(monthMap).map(
+            (month) => ({
+                month,
+                total: monthMap[month].total.toLocaleString('en-IN'),
+                paid: monthMap[month].paid.toLocaleString('en-IN'),
+                due: monthMap[month].due.toLocaleString('en-IN'),
+            })
+        )
 
         totalFee.value = total.toLocaleString('en-IN')
         paidFee.value = paid.toLocaleString('en-IN')
         dueFee.value = due.toLocaleString('en-IN')
+
     } catch (error) {
-        console.error('Student Fee API Error:', error)
+        console.error('Fee API Error:', error)
     }
 }
 
