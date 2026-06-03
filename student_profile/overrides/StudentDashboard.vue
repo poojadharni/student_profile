@@ -246,22 +246,18 @@
 
         <!-- NOTIFICATIONS -->
         <div class="mt-3">
-
             <div class="bg-white border rounded-xl p-4 shadow-sm">
 
                 <!-- HEADER -->
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
 
                     <div>
-
                         <h2 class="text-sm font-semibold text-gray-800">
                             Recent Notifications
                         </h2>
-
                         <p class="text-[11px] text-gray-400">
                             Student updates & activities
                         </p>
-
                     </div>
 
                     <button class="text-[11px] bg-blue-50 text-blue-600 px-3 py-1 rounded-full w-fit">
@@ -270,24 +266,30 @@
 
                 </div>
 
+                <!-- GRID -->
                 <div class="grid grid-cols-1 xl:grid-cols-4 gap-3">
 
                     <!-- 📝 EXAM CARD -->
-                    <div class="bg-white border rounded-xl p-3 shadow-sm">
-                        <h2 class="text-sm font-semibold mb-3">Exam Schedule</h2>
+                    <div v-if="notifications.exam.length"
+                        class="bg-blue-50 border border-blue-100 rounded-xl p-3 shadow-sm">
+
+                        <h2 class="text-sm font-semibold mb-3 text-blue-700">
+                            Exam Schedule
+                        </h2>
 
                         <div v-for="n in notifications.exam" :key="n.id" @click="openNotification(n)"
-                            class="group cursor-pointer rounded-lg border bg-gradient-to-br from-white to-gray-50 hover:shadow-md hover:border-blue-300 transition-all duration-300 p-3 mb-2">
+                            class="group cursor-pointer rounded-lg border bg-white hover:shadow-md hover:border-blue-300 transition-all p-3 mb-2">
 
                             <div class="flex items-start justify-between mb-2">
-                                <div
-                                    class="w-8 h-8 rounded-lg flex items-center justify-center text-white bg-blue-500 text-sm">
+
+                                <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white bg-blue-500">
                                     📝
                                 </div>
 
                                 <span class="text-[10px] text-gray-400">
                                     {{ n.time }}
                                 </span>
+
                             </div>
 
                             <h3 class="text-xs font-semibold text-gray-800 group-hover:text-blue-600">
@@ -297,26 +299,32 @@
                             <p class="text-[11px] text-gray-500 line-clamp-2">
                                 {{ n.message }}
                             </p>
+
                         </div>
                     </div>
 
-
                     <!-- 💳 FEE CARD -->
-                    <div class="bg-white border rounded-xl p-3 shadow-sm">
-                        <h2 class="text-sm font-semibold mb-3">Fee Alerts</h2>
+                    <div v-if="notifications.fee.length"
+                        class="bg-green-50 border border-green-100 rounded-xl p-3 shadow-sm">
+
+                        <h2 class="text-sm font-semibold mb-3 text-green-700">
+                            Fee Alerts
+                        </h2>
 
                         <div v-for="n in notifications.fee" :key="n.id" @click="openNotification(n)"
-                            class="group cursor-pointer rounded-lg border bg-gradient-to-br from-white to-gray-50 hover:shadow-md hover:border-green-300 transition-all duration-300 p-3 mb-2">
+                            class="group cursor-pointer rounded-lg border bg-white hover:shadow-md hover:border-green-300 transition-all p-3 mb-2">
 
                             <div class="flex items-start justify-between mb-2">
+
                                 <div
-                                    class="w-8 h-8 rounded-lg flex items-center justify-center text-white bg-green-500 text-sm">
+                                    class="w-8 h-8 rounded-lg flex items-center justify-center text-white bg-green-500">
                                     💳
                                 </div>
 
                                 <span class="text-[10px] text-gray-400">
                                     {{ n.time }}
                                 </span>
+
                             </div>
 
                             <h3 class="text-xs font-semibold text-gray-800 group-hover:text-green-600">
@@ -326,26 +334,32 @@
                             <p class="text-[11px] text-gray-500 line-clamp-2">
                                 {{ n.message }}
                             </p>
+
                         </div>
                     </div>
 
-
                     <!-- 📊 ATTENDANCE CARD -->
-                    <div class="bg-white border rounded-xl p-3 shadow-sm">
-                        <h2 class="text-sm font-semibold mb-3">Attendance</h2>
+                    <div v-if="notifications.attendance.length"
+                        class="bg-yellow-50 border border-yellow-100 rounded-xl p-3 shadow-sm">
+
+                        <h2 class="text-sm font-semibold mb-3 text-yellow-700">
+                            Attendance
+                        </h2>
 
                         <div v-for="n in notifications.attendance" :key="n.id" @click="openNotification(n)"
-                            class="group cursor-pointer rounded-lg border bg-gradient-to-br from-white to-gray-50 hover:shadow-md hover:border-yellow-300 transition-all duration-300 p-3 mb-2">
+                            class="group cursor-pointer rounded-lg border bg-white hover:shadow-md hover:border-yellow-300 transition-all p-3 mb-2">
 
                             <div class="flex items-start justify-between mb-2">
+
                                 <div
-                                    class="w-8 h-8 rounded-lg flex items-center justify-center text-white bg-yellow-500 text-sm">
+                                    class="w-8 h-8 rounded-lg flex items-center justify-center text-white bg-yellow-500">
                                     📊
                                 </div>
 
                                 <span class="text-[10px] text-gray-400">
                                     {{ n.time }}
                                 </span>
+
                             </div>
 
                             <h3 class="text-xs font-semibold text-gray-800 group-hover:text-yellow-600">
@@ -355,26 +369,32 @@
                             <p class="text-[11px] text-gray-500 line-clamp-2">
                                 {{ n.message }}
                             </p>
+
                         </div>
                     </div>
 
-
                     <!-- 🎉 EVENTS CARD -->
-                    <div class="bg-white border rounded-xl p-3 shadow-sm">
-                        <h2 class="text-sm font-semibold mb-3">Events</h2>
+                    <div v-if="notifications.events.length"
+                        class="bg-purple-50 border border-purple-100 rounded-xl p-3 shadow-sm">
+
+                        <h2 class="text-sm font-semibold mb-3 text-purple-700">
+                            Events
+                        </h2>
 
                         <div v-for="n in notifications.events" :key="n.id" @click="openNotification(n)"
-                            class="group cursor-pointer rounded-lg border bg-gradient-to-br from-white to-gray-50 hover:shadow-md hover:border-purple-300 transition-all duration-300 p-3 mb-2">
+                            class="group cursor-pointer rounded-lg border bg-white hover:shadow-md hover:border-purple-300 transition-all p-3 mb-2">
 
                             <div class="flex items-start justify-between mb-2">
+
                                 <div
-                                    class="w-8 h-8 rounded-lg flex items-center justify-center text-white bg-purple-500 text-sm">
+                                    class="w-8 h-8 rounded-lg flex items-center justify-center text-white bg-purple-500">
                                     🎉
                                 </div>
 
                                 <span class="text-[10px] text-gray-400">
                                     {{ n.time }}
                                 </span>
+
                             </div>
 
                             <h3 class="text-xs font-semibold text-gray-800 group-hover:text-purple-600">
@@ -384,12 +404,12 @@
                             <p class="text-[11px] text-gray-500 line-clamp-2">
                                 {{ n.message }}
                             </p>
+
                         </div>
                     </div>
 
                 </div>
             </div>
-
         </div>
 
         <!-- MODAL -->
@@ -656,79 +676,75 @@ const dueFee = ref(0)
 ---------------------------------- */
 const fetchFeeSummary = async () => {
     try {
-        const res = await fetch(
-            `/api/method/frappe.desk.reportview.get?doctype=Sales Invoice&fields=${encodeURIComponent(
-                JSON.stringify([
-                    'grand_total',
-                    'outstanding_amount',
-                    'status',
-                    'creation',
-                ])
-            )}&limit_page_length=1000`
+        if (!studentData.value.name) return
+
+        const response = await fetch(
+            '/api/method/education.education.api.get_student_invoices',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    student: studentData.value.name,
+                }),
+            }
         )
 
-        const data = await res.json()
+        const result = await response.json()
 
-        const monthMap = {
-            January: { total: 0, paid: 0, due: 0 },
-            February: { total: 0, paid: 0, due: 0 },
-            March: { total: 0, paid: 0, due: 0 },
-            April: { total: 0, paid: 0, due: 0 },
-            May: { total: 0, paid: 0, due: 0 },
-            June: { total: 0, paid: 0, due: 0 },
-        }
+        const invoices = result.message || []
+
+        const monthMap = {}
 
         let total = 0
         let paid = 0
         let due = 0
 
-        if (data.message?.values) {
-            data.message.values.forEach((row) => {
-                const grandTotal = Number(row[0]) || 0
-                const outstanding = Number(row[1]) || 0
-                const status = row[2]
-                const creation = row[3]
+        invoices.forEach((inv) => {
+            const grandTotal = Number(inv.grand_total || 0)
+            const outstanding = Number(inv.outstanding_amount || 0)
+            const status = inv.status
 
-                const month = new Date(
-                    creation
-                ).toLocaleString('default', {
-                    month: 'long',
-                })
-
-                if (monthMap[month]) {
-                    monthMap[month].total += grandTotal
-
-                    if (status === 'Paid') {
-                        monthMap[month].paid += grandTotal
-                    }
-
-                    monthMap[month].due += outstanding
-                }
-
-                total += grandTotal
-
-                if (status === 'Paid') {
-                    paid += grandTotal
-                }
-
-                due += outstanding
+            const month = new Date(inv.creation).toLocaleString('default', {
+                month: 'long',
             })
-        }
 
-        feeDetails.value = Object.keys(monthMap).map(
-            (month) => ({
-                month,
-                total: monthMap[month].total.toLocaleString('en-IN'),
-                paid: monthMap[month].paid.toLocaleString('en-IN'),
-                due: monthMap[month].due.toLocaleString('en-IN'),
-            })
-        )
+            // 👉 create month only when data exists
+            if (!monthMap[month]) {
+                monthMap[month] = {
+                    total: 0,
+                    paid: 0,
+                    due: 0,
+                }
+            }
+
+            monthMap[month].total += grandTotal
+
+            if (status === 'Paid') {
+                monthMap[month].paid += grandTotal
+            }
+
+            monthMap[month].due += outstanding
+
+            total += grandTotal
+            if (status === 'Paid') paid += grandTotal
+            due += outstanding
+        })
+
+        // 👉 convert only existing months (no empty months)
+        feeDetails.value = Object.keys(monthMap).map((month) => ({
+            month,
+            total: monthMap[month].total.toLocaleString('en-IN'),
+            paid: monthMap[month].paid.toLocaleString('en-IN'),
+            due: monthMap[month].due.toLocaleString('en-IN'),
+        }))
 
         totalFee.value = total.toLocaleString('en-IN')
         paidFee.value = paid.toLocaleString('en-IN')
         dueFee.value = due.toLocaleString('en-IN')
     } catch (error) {
-        console.error('Fee API Error:', error)
+        console.error('Student Fee API Error:', error)
     }
 }
 
@@ -840,8 +856,8 @@ const gradeChartOptions = ref({
 ---------------------------------- */
 onMounted(async () => {
     await fetchStudentInfo()
-    await fetchFeeSummary()
     await fetchStudentGrades()
     await fetchNotifications()
+    await fetchFeeSummary()
 })
 </script>
