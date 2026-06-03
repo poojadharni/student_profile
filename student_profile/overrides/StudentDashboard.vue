@@ -270,45 +270,124 @@
 
                 </div>
 
-                <!-- NOTIFICATION GRID -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+                <div class="grid grid-cols-1 xl:grid-cols-4 gap-3">
 
-                    <div v-for="notification in notifications" :key="notification.id"
-                        @click="openNotification(notification)"
-                        class="group cursor-pointer rounded-xl border border-gray-200 bg-gradient-to-br from-white to-gray-50 hover:shadow-md hover:border-blue-300 transition-all duration-300 p-3">
+                    <!-- 📝 EXAM CARD -->
+                    <div class="bg-white border rounded-xl p-3 shadow-sm">
+                        <h2 class="text-sm font-semibold mb-3">Exam Schedule</h2>
 
-                        <!-- TOP -->
-                        <div class="flex items-start justify-between mb-3">
+                        <div v-for="n in notifications.exam" :key="n.id" @click="openNotification(n)"
+                            class="group cursor-pointer rounded-lg border bg-gradient-to-br from-white to-gray-50 hover:shadow-md hover:border-blue-300 transition-all duration-300 p-3 mb-2">
 
-                            <!-- ICON -->
-                            <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white text-lg"
-                                :class="notification.bg">
+                            <div class="flex items-start justify-between mb-2">
+                                <div
+                                    class="w-8 h-8 rounded-lg flex items-center justify-center text-white bg-blue-500 text-sm">
+                                    📝
+                                </div>
 
-                                {{ notification.icon }}
-
+                                <span class="text-[10px] text-gray-400">
+                                    {{ n.time }}
+                                </span>
                             </div>
 
-                            <!-- TIME -->
-                            <span class="text-[10px] text-gray-400">
-                                {{ notification.time }}
-                            </span>
+                            <h3 class="text-xs font-semibold text-gray-800 group-hover:text-blue-600">
+                                {{ n.title }}
+                            </h3>
 
+                            <p class="text-[11px] text-gray-500 line-clamp-2">
+                                {{ n.message }}
+                            </p>
                         </div>
+                    </div>
 
-                        <!-- TITLE -->
-                        <h3 class="text-xs font-semibold text-gray-800 mb-1 group-hover:text-blue-600">
-                            {{ notification.title }}
-                        </h3>
 
-                        <!-- MESSAGE -->
-                        <p class="text-[11px] text-gray-500 line-clamp-3 leading-5">
-                            {{ notification.message }}
-                        </p>
+                    <!-- 💳 FEE CARD -->
+                    <div class="bg-white border rounded-xl p-3 shadow-sm">
+                        <h2 class="text-sm font-semibold mb-3">Fee Alerts</h2>
 
+                        <div v-for="n in notifications.fee" :key="n.id" @click="openNotification(n)"
+                            class="group cursor-pointer rounded-lg border bg-gradient-to-br from-white to-gray-50 hover:shadow-md hover:border-green-300 transition-all duration-300 p-3 mb-2">
+
+                            <div class="flex items-start justify-between mb-2">
+                                <div
+                                    class="w-8 h-8 rounded-lg flex items-center justify-center text-white bg-green-500 text-sm">
+                                    💳
+                                </div>
+
+                                <span class="text-[10px] text-gray-400">
+                                    {{ n.time }}
+                                </span>
+                            </div>
+
+                            <h3 class="text-xs font-semibold text-gray-800 group-hover:text-green-600">
+                                {{ n.title }}
+                            </h3>
+
+                            <p class="text-[11px] text-gray-500 line-clamp-2">
+                                {{ n.message }}
+                            </p>
+                        </div>
+                    </div>
+
+
+                    <!-- 📊 ATTENDANCE CARD -->
+                    <div class="bg-white border rounded-xl p-3 shadow-sm">
+                        <h2 class="text-sm font-semibold mb-3">Attendance</h2>
+
+                        <div v-for="n in notifications.attendance" :key="n.id" @click="openNotification(n)"
+                            class="group cursor-pointer rounded-lg border bg-gradient-to-br from-white to-gray-50 hover:shadow-md hover:border-yellow-300 transition-all duration-300 p-3 mb-2">
+
+                            <div class="flex items-start justify-between mb-2">
+                                <div
+                                    class="w-8 h-8 rounded-lg flex items-center justify-center text-white bg-yellow-500 text-sm">
+                                    📊
+                                </div>
+
+                                <span class="text-[10px] text-gray-400">
+                                    {{ n.time }}
+                                </span>
+                            </div>
+
+                            <h3 class="text-xs font-semibold text-gray-800 group-hover:text-yellow-600">
+                                {{ n.title }}
+                            </h3>
+
+                            <p class="text-[11px] text-gray-500 line-clamp-2">
+                                {{ n.message }}
+                            </p>
+                        </div>
+                    </div>
+
+
+                    <!-- 🎉 EVENTS CARD -->
+                    <div class="bg-white border rounded-xl p-3 shadow-sm">
+                        <h2 class="text-sm font-semibold mb-3">Events</h2>
+
+                        <div v-for="n in notifications.events" :key="n.id" @click="openNotification(n)"
+                            class="group cursor-pointer rounded-lg border bg-gradient-to-br from-white to-gray-50 hover:shadow-md hover:border-purple-300 transition-all duration-300 p-3 mb-2">
+
+                            <div class="flex items-start justify-between mb-2">
+                                <div
+                                    class="w-8 h-8 rounded-lg flex items-center justify-center text-white bg-purple-500 text-sm">
+                                    🎉
+                                </div>
+
+                                <span class="text-[10px] text-gray-400">
+                                    {{ n.time }}
+                                </span>
+                            </div>
+
+                            <h3 class="text-xs font-semibold text-gray-800 group-hover:text-purple-600">
+                                {{ n.title }}
+                            </h3>
+
+                            <p class="text-[11px] text-gray-500 line-clamp-2">
+                                {{ n.message }}
+                            </p>
+                        </div>
                     </div>
 
                 </div>
-
             </div>
 
         </div>
@@ -493,6 +572,69 @@ const fetchStudentGrades = async () => {
         console.error('Grade API Error:', error)
     }
 }
+const stripHtml = (html) => {
+    const div = document.createElement('div')
+    div.innerHTML = html || ''
+    return div.textContent || div.innerText || ''
+}
+
+const fetchNotifications = async () => {
+    try {
+        const response = await fetch(
+            '/api/method/frappe.desk.doctype.notification_log.notification_log.get_notification_logs'
+        )
+
+        const result = await response.json()
+
+        const logs = result.message?.notification_logs || []
+
+        const grouped = {
+            exam: [],
+            fee: [],
+            attendance: [],
+            events: [],
+        }
+
+        logs.forEach((item) => {
+            const clean = {
+                id: item.name,
+                title: item.subject || 'Notification',
+                time: new Date(item.creation).toLocaleString(),
+                message: stripHtml(item.email_content),
+                fullContent: item.email_content,
+                documentType: item.document_type,
+            }
+
+            // 📝 Exam
+            if (item.document_type === 'Assessment Plan') {
+                grouped.exam.push(clean)
+            }
+
+            // 💳 Fee (if you have fee notifications)
+            else if (item.document_type === 'Fees' || item.subject?.includes('Fee')) {
+                grouped.fee.push(clean)
+            }
+
+            // 📊 Attendance
+            else if (item.document_type === 'Attendance') {
+                grouped.attendance.push(clean)
+            }
+
+            // 🎉 EVENTS (IMPORTANT PART)
+            else if (
+                item.document_type === 'Event' ||
+                item.document_type === 'Calendar Event' ||
+                item.subject?.toLowerCase().includes('event')
+            ) {
+                grouped.events.push(clean)
+            }
+        })
+
+        notifications.value = grouped
+    } catch (error) {
+        console.error('Notification API Error:', error)
+    }
+}
 /* ----------------------------------
    FEE DETAILS
 ---------------------------------- */
@@ -593,45 +735,12 @@ const fetchFeeSummary = async () => {
 /* ----------------------------------
    NOTIFICATIONS
 ---------------------------------- */
-const notifications = [
-    {
-        id: 1,
-        title: 'Fee Reminder',
-        time: '10 min ago',
-        icon: '💳',
-        bg: 'bg-red-500',
-        message:
-            'Your June tuition fee payment of ₹5,000 is pending.',
-    },
-    {
-        id: 2,
-        title: 'Exam Schedule',
-        time: '1 hour ago',
-        icon: '📝',
-        bg: 'bg-blue-500',
-        message:
-            'Mid-term examinations will begin from July 15th.',
-    },
-    {
-        id: 3,
-        title: 'Attendance Alert',
-        time: 'Today',
-        icon: '📊',
-        bg: 'bg-emerald-500',
-        message:
-            'Attendance percentage dropped below 85%.',
-    },
-    {
-        id: 4,
-        title: 'Sports Event',
-        time: 'Yesterday',
-        icon: '🏆',
-        bg: 'bg-orange-500',
-        message:
-            'Annual inter-school sports registrations are open.',
-    },
-]
-
+const notifications = ref({
+    exam: [],
+    fee: [],
+    attendance: [],
+    events: []
+})
 const showModal = ref(false)
 
 const selectedNotification = ref({})
@@ -733,5 +842,6 @@ onMounted(async () => {
     await fetchStudentInfo()
     await fetchFeeSummary()
     await fetchStudentGrades()
+    await fetchNotifications()
 })
 </script>
