@@ -55,35 +55,6 @@
             <!-- RIGHT SECTION -->
             <div class="xl:col-span-6 flex flex-col gap-3">
 
-                <!-- STATS -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-
-                    <div class="rounded-xl p-4 text-center bg-gradient-to-r from-pink-500 to-rose-500 shadow-sm">
-
-                        <p class="text-xs text-white/80 mb-1">
-                            Student Suspension Rate
-                        </p>
-
-                        <h2 class="text-2xl font-bold text-white">
-                            2.44%
-                        </h2>
-
-                    </div>
-
-                    <div class="rounded-xl p-4 text-center bg-gradient-to-r from-cyan-500 to-blue-500 shadow-sm">
-
-                        <p class="text-xs text-white/80 mb-1">
-                            Class Participation Rate
-                        </p>
-
-                        <h2 class="text-2xl font-bold text-white">
-                            87.48%
-                        </h2>
-
-                    </div>
-
-                </div>
-
                 <!-- ATTENDANCE -->
                 <div class="bg-white border rounded-xl p-3 shadow-sm">
 
@@ -112,7 +83,6 @@
                     </div>
 
                     <apexchart type="bar" height="180" :options="attendanceChartOptions" :series="attendanceSeries" />
-
                 </div>
 
             </div>
@@ -660,9 +630,9 @@ const fetchNotifications = async () => {
 ---------------------------------- */
 const feeDetails = ref([])
 
-// const totalFee = ref(0)
-// const paidFee = ref(0)
-// const dueFee = ref(0)
+const totalFee = ref(0)
+const paidFee = ref(0)
+const dueFee = ref(0)
 
 /* ----------------------------------
    FETCH FEES
@@ -731,6 +701,64 @@ const fetchFeeSummary = async () => {
     }
 }
 
+const fetchAttendanceSummary = async () => {
+    try {
+        const response = await fetch(
+            '/api/method/education.education.api.get_student_attendance'
+        )
+
+        const result = await response.json()
+
+        console.log('Attendance API:', result)
+
+        const records = result.message || []
+
+        let present = 0
+        let absent = 0
+        let leave = 0
+
+        records.forEach((row) => {
+            const status = (row.status || '').toLowerCase()
+
+            if (status === 'present') {
+                present++
+            } else if (status === 'absent') {
+                absent++
+            } else if (status === 'leave') {
+                leave++
+            }
+        })
+
+        attendanceSeries.value = [
+            {
+                name: 'Days Present',
+                data: [present],
+            },
+            {
+                name: 'Days Absent',
+                data: [absent],
+            },
+            {
+                name: 'Leaves',
+                data: [leave],
+            },
+        ]
+
+        attendanceChartOptions.value = {
+            ...attendanceChartOptions.value,
+            xaxis: {
+                categories: ['Attendance'],
+                max: Math.max(
+                    present + absent + leave,
+                    10
+                ),
+            },
+        }
+    } catch (error) {
+        console.error('Attendance API Error:', error)
+    }
+}
+
 /* ----------------------------------
    NOTIFICATIONS
 ---------------------------------- */
@@ -752,20 +780,20 @@ const openNotification = (notification) => {
 /* ----------------------------------
    CHARTS
 ---------------------------------- */
-const attendanceSeries = [
+const attendanceSeries = ref([
     {
         name: 'Days Present',
-        data: [85],
+        data: [0],
     },
     {
         name: 'Days Absent',
-        data: [8],
+        data: [0],
     },
     {
         name: 'Leaves',
-        data: [7],
+        data: [0],
     },
-]
+])
 
 const attendanceChartOptions = {
     chart: {
@@ -842,5 +870,6 @@ onMounted(async () => {
     await fetchStudentGrades()
     await fetchNotifications()
     await fetchFeeSummary()
+    await fetchAttendanceSummary()
 })
 </script>
