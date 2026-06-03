@@ -440,19 +440,23 @@ const fetchStudentInfo = async () => {
         console.error('Student Info Error:', error)
     }
 }
-
 const fetchStudentGrades = async () => {
     try {
+
+        if (!studentData.value.name) return
+
         const response = await fetch(
             '/api/method/frappe.client.get_list?' +
             new URLSearchParams({
                 doctype: 'Assessment Result',
                 fields: JSON.stringify([
-                    'name',
                     'course',
                     'grade',
                     'total_score',
                     'maximum_score'
+                ]),
+                filters: JSON.stringify([
+                    ['student', '=', studentData.value.name]
                 ]),
                 limit_page_length: 100
             })
@@ -464,19 +468,28 @@ const fetchStudentGrades = async () => {
 
         const grades = result.message || []
 
-        gradeChartOptions.value.xaxis.categories =
-            grades.map(row => row.course)
+        gradeChartOptions.value = {
+            ...gradeChartOptions.value,
+            xaxis: {
+                categories: grades.map(row => row.course)
+            }
+        }
 
         gradeSeries.value = [
             {
                 name: 'Score',
-                data: grades.map(row =>
-                    Number(row.total_score || 0)
-                ),
-            },
+                data: grades.map(row => {
+                    const score = Number(row.total_score || 0)
+                    const max = Number(row.maximum_score || 0)
+
+                    return max > 0
+                        ? ((score / max) * 100).toFixed(2)
+                        : 0
+                })
+            }
         ]
-    }
-    catch (error) {
+
+    } catch (error) {
         console.error('Grade API Error:', error)
     }
 }
