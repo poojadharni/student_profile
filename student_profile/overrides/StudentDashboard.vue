@@ -240,7 +240,6 @@
                 </div>
 
                 <apexchart type="bar" height="260" :options="gradeChartOptions" :series="gradeSeries" />
-
             </div>
 
         </div>
@@ -442,6 +441,45 @@ const fetchStudentInfo = async () => {
     }
 }
 
+const fetchStudentGrades = async () => {
+    try {
+        const response = await fetch(
+            '/api/method/frappe.client.get_list?' +
+            new URLSearchParams({
+                doctype: 'Assessment Result',
+                fields: JSON.stringify([
+                    'name',
+                    'course',
+                    'grade',
+                    'total_score',
+                    'maximum_score'
+                ]),
+                limit_page_length: 100
+            })
+        )
+
+        const result = await response.json()
+
+        console.log('Grade Data:', result)
+
+        const grades = result.message || []
+
+        gradeChartOptions.value.xaxis.categories =
+            grades.map(row => row.course)
+
+        gradeSeries.value = [
+            {
+                name: 'Score',
+                data: grades.map(row =>
+                    Number(row.total_score || 0)
+                ),
+            },
+        ]
+    }
+    catch (error) {
+        console.error('Grade API Error:', error)
+    }
+}
 /* ----------------------------------
    FEE DETAILS
 ---------------------------------- */
@@ -634,43 +672,46 @@ const attendanceChartOptions = {
     },
 }
 
-const gradeSeries = [
+const gradeSeries = ref([
     {
-        name: 'Grades',
-        data: [98, 95, 92, 88, 97],
+        name: 'Score',
+        data: [],
     },
-]
+])
 
-const gradeChartOptions = {
+const gradeChartOptions = ref({
     chart: {
         toolbar: {
             show: false,
         },
     },
+
     colors: ['#3fc8be'],
+
     plotOptions: {
         bar: {
             borderRadius: 4,
             columnWidth: '55%',
         },
     },
+
     dataLabels: {
         enabled: true,
         formatter: (val) => `${val}%`,
     },
+
     yaxis: {
         max: 100,
     },
+
     xaxis: {
-        categories: [
-            'Arts',
-            'English',
-            'Maths',
-            'Phys. Ed',
-            'Science',
-        ],
+        categories: [],
     },
-}
+
+    grid: {
+        borderColor: '#eee',
+    },
+})
 
 /* ----------------------------------
    PAGE LOAD
@@ -678,5 +719,6 @@ const gradeChartOptions = {
 onMounted(async () => {
     await fetchStudentInfo()
     await fetchFeeSummary()
+    await fetchStudentGrades()
 })
 </script>
