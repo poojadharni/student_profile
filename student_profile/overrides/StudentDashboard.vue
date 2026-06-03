@@ -706,19 +706,36 @@ const fetchAttendanceSummary = async () => {
 
         if (!studentData.value.name) return
 
-        const student = studentData.value.name
+        // Get Student Group using Frappe API
+        const groupResponse = await fetch(
+            '/api/method/frappe.client.get_list?' +
+            new URLSearchParams({
+                doctype: 'Student Group Student',
+                fields: JSON.stringify(['parent']),
+                filters: JSON.stringify({
+                    student: studentData.value.name
+                }),
+                limit_page_length: 1
+            })
+        )
+
+        const groupResult = await groupResponse.json()
 
         const studentGroup =
-            studentData.value.student_group ||
-            studentData.value.current_student_group ||
-            ''
+            groupResult.message?.[0]?.parent || ''
 
+        console.log('Student Group:', studentGroup)
+
+        if (!studentGroup) {
+            console.warn('No Student Group found')
+            return
+        }
+
+        // Attendance API
         const response = await fetch(
             `/api/method/education.education.api.get_student_attendance?student=${encodeURIComponent(
-                student
-            )}&student_group=${encodeURIComponent(
-                studentGroup
-            )}`
+                studentData.value.name
+            )}&student_group=${encodeURIComponent(studentGroup)}`
         )
 
         const result = await response.json()
@@ -742,25 +759,17 @@ const fetchAttendanceSummary = async () => {
         attendanceSeries.value = [
             {
                 name: 'Days Present',
-                data: [present],
+                data: [present]
             },
             {
                 name: 'Days Absent',
-                data: [absent],
+                data: [absent]
             },
             {
                 name: 'Leaves',
-                data: [leave],
-            },
-        ]
-
-        attendanceChartOptions.value = {
-            ...attendanceChartOptions.value,
-            xaxis: {
-                categories: ['Attendance'],
-                max: present + absent + leave
+                data: [leave]
             }
-        }
+        ]
 
     } catch (error) {
         console.error('Attendance Error:', error)
