@@ -706,27 +706,12 @@ const fetchAttendanceSummary = async () => {
 
         if (!studentData.value.name) return
 
-        // Get Student Group
-        const groupResponse = await fetch(
-            '/api/method/frappe.client.get_list?' +
-            new URLSearchParams({
-                doctype: 'Student Group Student',
-                fields: JSON.stringify(['parent']),
-                filters: JSON.stringify({
-                    student: studentData.value.name
-                }),
-                limit_page_length: 1
-            })
-        )
-
-        const groupResult = await groupResponse.json()
-
-        console.log('Group API:', groupResult)
+        const student = studentData.value.name
 
         const studentGroup =
-            groupResult.message?.[0]?.parent || ''
+            studentData.value.student_groups?.[0]?.label || ''
 
-        console.log('Student:', studentData.value.name)
+        console.log('Student:', student)
         console.log('Student Group:', studentGroup)
 
         if (!studentGroup) {
@@ -734,20 +719,19 @@ const fetchAttendanceSummary = async () => {
             return
         }
 
-        // Attendance API
-        const attendanceResponse = await fetch(
+        const response = await fetch(
             `/api/method/education.education.api.get_student_attendance?student=${encodeURIComponent(
-                studentData.value.name
+                student
             )}&student_group=${encodeURIComponent(
                 studentGroup
             )}`
         )
 
-        const attendanceResult = await attendanceResponse.json()
+        const result = await response.json()
 
-        console.log('Attendance API:', attendanceResult)
+        console.log('Attendance API:', result)
 
-        const rows = attendanceResult.message || []
+        const rows = result.message || []
 
         const present = rows.filter(
             row => row.status === 'Present'
