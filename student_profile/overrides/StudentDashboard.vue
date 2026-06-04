@@ -472,12 +472,16 @@ const personalDetails = computed(() => [
         value: studentData.value.student_name || '-',
     },
     {
-        label: 'Age',
-        value: studentData.value.age || '-',
+        label: 'Date of Birth',
+        value: studentData.value.date_of_birth || '-',
     },
     {
         label: 'Gender',
         value: studentData.value.gender || '-',
+    },
+    {
+        label: 'College',
+        value: studentData.value.custom_college || '-',
     },
     {
         label: 'Nationality',
