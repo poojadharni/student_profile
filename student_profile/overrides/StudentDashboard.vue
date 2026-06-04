@@ -19,17 +19,26 @@
                 <!-- TABS -->
                 <div class="flex flex-wrap gap-5 border-b pb-2 mb-3">
 
-                    <button class="text-xs font-semibold text-emerald-600 border-b-2 border-emerald-600 pb-1">
+                    <div @click="activeTab = 'personal'" class="cursor-pointer text-xs font-semibold pb-1" :class="activeTab === 'personal'
+                        ? 'text-emerald-600 border-b-2 border-emerald-600'
+                        : 'text-gray-600'
+                        ">
                         Personal
-                    </button>
+                    </div>
 
-                    <button class="text-xs font-semibold text-gray-600">
+                    <div @click="activeTab = 'contact'" class="cursor-pointer text-xs font-semibold pb-1" :class="activeTab === 'contact'
+                        ? 'text-emerald-600 border-b-2 border-emerald-600'
+                        : 'text-gray-600'
+                        ">
                         Contact
-                    </button>
+                    </div>
 
-                    <button class="text-xs font-semibold text-gray-600">
+                    <div @click="activeTab = 'academic'" class="cursor-pointer text-xs font-semibold pb-1" :class="activeTab === 'academic'
+                        ? 'text-emerald-600 border-b-2 border-emerald-600'
+                        : 'text-gray-600'
+                        ">
                         Academic
-                    </button>
+                    </div>
 
                 </div>
 
@@ -451,8 +460,9 @@ import { ref, onMounted, computed } from 'vue'
    STUDENT DATA
 ---------------------------------- */
 const studentData = ref({})
+const activeTab = ref('personal')
 
-const details = computed(() => [
+const personalDetails = computed(() => [
     {
         label: 'Student ID',
         value: studentData.value.name || '-',
@@ -460,13 +470,6 @@ const details = computed(() => [
     {
         label: 'Full Name',
         value: studentData.value.student_name || '-',
-    },
-    {
-        label: 'Grade',
-        value:
-            studentData.value.current_program?.program ||
-            studentData.value.custom_class ||
-            '-',
     },
     {
         label: 'Age',
@@ -479,15 +482,81 @@ const details = computed(() => [
     {
         label: 'Nationality',
         value: studentData.value.nationality || 'Indian',
+    }
+])
+
+const contactDetails = computed(() => [
+    {
+        label: 'Mobile Number',
+        value: studentData.value.student_mobile_number || '-',
     },
     {
         label: 'Email Address',
+        value: studentData.value.student_email_id || '-',
+    },
+    {
+        label: 'Address Line 1',
+        value: studentData.value.address_line_1 || '-',
+    },
+    {
+        label: 'Address Line 2',
+        value: studentData.value.address_line_2 || '-',
+    },
+    {
+        label: 'City',
+        value: studentData.value.city || '-',
+    },
+    {
+        label: 'State',
+        value: studentData.value.state || '-',
+    },
+    {
+        label: 'Country',
+        value: studentData.value.country || '-',
+    },
+    {
+        label: 'Pincode',
+        value: studentData.value.pincode || '-',
+    }
+])
+
+const academicDetails = computed(() => [
+    {
+        label: 'Class',
         value:
-            studentData.value.student_email_id ||
-            studentData.value.email ||
+            studentData.value.current_program?.program ||
+            studentData.value.custom_class ||
             '-',
     },
+    {
+        label: 'Batch',
+        value:
+            studentData.value.current_program?.student_batch ||
+            studentData.value.custom_batch ||
+            '-',
+    },
+    {
+        label: 'Joining Date',
+        value: studentData.value.joining_date || '-',
+    },
+    {
+        label: 'Student Group',
+        value:
+            studentData.value.student_groups?.[0]?.label || '-',
+    }
 ])
+
+const details = computed(() => {
+    if (activeTab.value === 'contact') {
+        return contactDetails.value
+    }
+
+    if (activeTab.value === 'academic') {
+        return academicDetails.value
+    }
+
+    return personalDetails.value
+})
 
 /* ----------------------------------
    FETCH STUDENT INFO
