@@ -706,7 +706,7 @@ const fetchAttendanceSummary = async () => {
 
         if (!studentData.value.name) return
 
-        // Get Student Group using Frappe API
+        // Get Student Group
         const groupResponse = await fetch(
             '/api/method/frappe.client.get_list?' +
             new URLSearchParams({
@@ -721,39 +721,44 @@ const fetchAttendanceSummary = async () => {
 
         const groupResult = await groupResponse.json()
 
+        console.log('Group API:', groupResult)
+
         const studentGroup =
             groupResult.message?.[0]?.parent || ''
 
+        console.log('Student:', studentData.value.name)
         console.log('Student Group:', studentGroup)
 
         if (!studentGroup) {
-            console.warn('No Student Group found')
+            console.warn('Student Group not found')
             return
         }
 
         // Attendance API
-        const response = await fetch(
+        const attendanceResponse = await fetch(
             `/api/method/education.education.api.get_student_attendance?student=${encodeURIComponent(
                 studentData.value.name
-            )}&student_group=${encodeURIComponent(studentGroup)}`
+            )}&student_group=${encodeURIComponent(
+                studentGroup
+            )}`
         )
 
-        const result = await response.json()
+        const attendanceResult = await attendanceResponse.json()
 
-        console.log('Attendance API:', result)
+        console.log('Attendance API:', attendanceResult)
 
-        const rows = result.message || []
+        const rows = attendanceResult.message || []
 
         const present = rows.filter(
-            r => r.status === 'Present'
+            row => row.status === 'Present'
         ).length
 
         const absent = rows.filter(
-            r => r.status === 'Absent'
+            row => row.status === 'Absent'
         ).length
 
         const leave = rows.filter(
-            r => r.status === 'Leave'
+            row => row.status === 'Leave'
         ).length
 
         attendanceSeries.value = [
@@ -770,6 +775,14 @@ const fetchAttendanceSummary = async () => {
                 data: [leave]
             }
         ]
+
+        attendanceChartOptions.value = {
+            ...attendanceChartOptions.value,
+            xaxis: {
+                categories: ['Attendance'],
+                max: present + absent + leave
+            }
+        }
 
     } catch (error) {
         console.error('Attendance Error:', error)
