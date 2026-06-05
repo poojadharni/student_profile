@@ -204,12 +204,17 @@ const eventResource = createResource({
 /* ---------------------------------
    Merge Attendance + Events
 ---------------------------------- */
-
 const calendarEvents = computed(() => {
-  return [
+  const events = [
     ...(attendanceResource.data || []),
     ...(eventResource.data || []),
   ]
+
+  console.log('Attendance Events:', attendanceResource.data)
+  console.log('Custom Events:', eventResource.data)
+  console.log('Merged Events:', events)
+
+  return events
 })
 
 /* ---------------------------------
