@@ -152,7 +152,6 @@ const eventResource = createResource({
 
   params: {
     doctype: 'Event',
-
     fields: JSON.stringify([
       'name',
       'subject',
@@ -161,11 +160,9 @@ const eventResource = createResource({
       'status',
       'color',
     ]),
-
     filters: JSON.stringify([
       ['Event', 'status', '=', 'Open'],
     ]),
-
     order_by: '`tabEvent`.`modified` desc',
     start: 0,
     page_length: 100,
@@ -173,11 +170,17 @@ const eventResource = createResource({
   },
 
   transform: (r) => {
-    if (!r?.message?.keys || !r?.message?.values) return []
+    console.log('RAW EVENT RESPONSE', r)
 
-    const keys = r.message.keys
+    const keys = r?.message?.keys || r?.keys
+    const values = r?.message?.values || r?.values
 
-    return r.message.values.map((row) => {
+    if (!keys || !values) {
+      console.log('NO KEYS OR VALUES')
+      return []
+    }
+
+    return values.map((row) => {
       const event = {}
 
       keys.forEach((key, index) => {
@@ -196,8 +199,12 @@ const eventResource = createResource({
     })
   },
 
-  onError: (err) => {
-    console.log('Event Error', err)
+  onSuccess(data) {
+    console.log('EVENT SUCCESS', data)
+  },
+
+  onError(err) {
+    console.log('EVENT ERROR', err)
   },
 })
 
