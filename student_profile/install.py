@@ -54,9 +54,9 @@ def apply_overrides():
             custom_src / "StudentDashboard.vue",
             education_src / "pages" / "StudentDashboard.vue",
         ),
-          (
-            custom_src / "attendance.vue",
-            education_src / "pages" / "attendance.vue",
+        (
+            custom_src / "Attendance.vue",
+            education_src / "pages" / "Attendance.vue",
         ),
         (
             custom_src / "router.js",
