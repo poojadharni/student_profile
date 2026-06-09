@@ -352,39 +352,45 @@
                         </div>
                     </div>
 
-                    <!-- 🎉 EVENTS CARD -->
-                    <div v-if="notifications.events.length"
-                        class="bg-purple-50 border border-purple-100 rounded-xl p-3 shadow-sm">
+                    <div class="bg-white border rounded-xl p-3 shadow-sm">
 
-                        <h2 class="text-sm font-semibold mb-3 text-purple-700">
-                            Events
-                        </h2>
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="text-sm font-semibold text-gray-700">
+                                Upcoming Events
+                            </h2>
 
-                        <div v-for="n in notifications.events" :key="n.id" @click="openNotification(n)"
-                            class="group cursor-pointer rounded-lg border bg-white hover:shadow-md hover:border-purple-300 transition-all p-3 mb-2">
+                            <span class="text-xs text-gray-400">
+                                {{ events.length }} Events
+                            </span>
+                        </div>
 
-                            <div class="flex items-start justify-between mb-2">
+                        <div v-for="event in events" :key="event.name"
+                            class="border rounded-xl p-3 mb-2 hover:shadow-md transition">
+                            <div class="flex items-start justify-between">
 
-                                <div
-                                    class="w-8 h-8 rounded-lg flex items-center justify-center text-white bg-purple-500">
-                                    🎉
+                                <div>
+                                    <h3 class="font-semibold text-sm text-gray-800">
+                                        {{ event.title }}
+                                    </h3>
+
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        📅 {{ formatDate(event.date) }}
+                                    </p>
+
+                                    <p v-if="event.description" class="text-xs text-gray-500 mt-1">
+                                        {{ event.description }}
+                                    </p>
                                 </div>
 
-                                <span class="text-[10px] text-gray-400">
-                                    {{ n.time }}
-                                </span>
+                                <div class="w-3 h-3 rounded-full mt-1" :style="{ backgroundColor: event.color }"></div>
 
                             </div>
-
-                            <h3 class="text-xs font-semibold text-gray-800 group-hover:text-purple-600">
-                                {{ n.title }}
-                            </h3>
-
-                            <p class="text-[11px] text-gray-500 line-clamp-2">
-                                {{ n.message }}
-                            </p>
-
                         </div>
+
+                        <div v-if="!events.length" class="text-center text-xs text-gray-400 py-4">
+                            No upcoming events
+                        </div>
+
                     </div>
 
                 </div>
@@ -455,12 +461,13 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-
+import { createResource } from 'frappe-ui'
 /* ----------------------------------
    STUDENT DATA
 ---------------------------------- */
 const studentData = ref({})
 const activeTab = ref('personal')
+const events = ref([])
 
 const personalDetails = computed(() => [
     {
@@ -697,6 +704,77 @@ const fetchNotifications = async () => {
     } catch (error) {
         console.error('Notification API Error:', error)
     }
+}
+const eventResource = createResource({
+    url: 'frappe.desk.reportview.get',
+
+    params: {
+        doctype: 'Event',
+
+        fields: JSON.stringify([
+            'name',
+            'subject',
+            'starts_on',
+            'ends_on',
+            'status',
+            'color',
+            'description'
+        ]),
+
+        filters: JSON.stringify([
+            ['Event', 'starts_on', '>=', frappe.datetime.now_datetime()]
+        ]),
+
+        order_by: '`tabEvent`.`starts_on` asc',
+
+        start: 0,
+        page_length: 20,
+        view: 'List',
+    },
+
+    transform: (r) => {
+        const keys = r?.message?.keys || r?.keys
+        const values = r?.message?.values || r?.values
+
+        if (!keys || !values) {
+            return []
+        }
+
+        return values.map((row) => {
+            const event = {}
+
+            keys.forEach((key, index) => {
+                event[key] = row[index]
+            })
+
+            return {
+                name: event.name,
+                title: event.subject,
+                date: event.starts_on,
+                end_date: event.ends_on,
+                description: event.description,
+                color: event.color || '#7c3aed'
+            }
+        })
+    },
+
+    onSuccess(data) {
+        events.value = data
+        console.log('EVENTS', data)
+    },
+
+    onError(err) {
+        console.error('EVENT ERROR', err)
+    },
+})
+const formatDate = (date) => {
+    if (!date) return '-'
+
+    return new Date(date).toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+    })
 }
 /* ----------------------------------
    FEE DETAILS
@@ -957,5 +1035,6 @@ onMounted(async () => {
     await fetchNotifications()
     await fetchFeeSummary()
     await fetchAttendanceSummary()
+    eventResource.fetch()
 })
 </script>
