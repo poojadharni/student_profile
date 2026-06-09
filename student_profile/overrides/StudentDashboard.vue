@@ -733,17 +733,18 @@ const eventResource = createResource({
         ]),
 
         order_by: '`tabEvent`.`starts_on` asc',
-
         start: 0,
         page_length: 50,
         view: 'List'
     },
 
-    transform(data) {
-        const keys = data?.message?.keys || data?.keys || []
-        const values = data?.message?.values || data?.values || []
+    onSuccess(data) {
+        console.log('RAW EVENTS', data)
 
-        return values.map((row) => {
+        const keys = data?.keys || []
+        const values = data?.values || []
+
+        events.value = values.map((row) => {
             const event = {}
 
             keys.forEach((key, index) => {
@@ -754,7 +755,6 @@ const eventResource = createResource({
                 name: event.name,
                 title: event.subject,
 
-                // formatted date directly
                 date: event.starts_on
                     ? new Date(event.starts_on).toLocaleDateString('en-IN', {
                         day: 'numeric',
@@ -766,18 +766,15 @@ const eventResource = createResource({
                 start_date: event.starts_on,
                 end_date: event.ends_on,
 
-                description: stripHtml(event.description),
+                description: event.description || '',
 
                 color: event.color || '#7c3aed',
 
                 status: event.status
             }
         })
-    },
 
-    onSuccess(data) {
-        console.log('EVENTS TRANSFORMED', data)
-        events.value = Array.isArray(data) ? data : []
+        console.log('FINAL EVENTS', events.value)
     },
 
     onError(error) {
