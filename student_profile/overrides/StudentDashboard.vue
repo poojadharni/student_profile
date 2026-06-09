@@ -722,23 +722,19 @@ const eventResource = createResource({
         ]),
 
         filters: JSON.stringify([
-            ['Event', 'starts_on', '>=', frappe.datetime.now_datetime()]
+            ['status', '=', 'Open']
         ]),
 
         order_by: '`tabEvent`.`starts_on` asc',
 
         start: 0,
-        page_length: 20,
-        view: 'List',
+        page_length: 50,
+        view: 'List'
     },
 
-    transform: (r) => {
-        const keys = r?.message?.keys || r?.keys
-        const values = r?.message?.values || r?.values
-
-        if (!keys || !values) {
-            return []
-        }
+    transform(data) {
+        const keys = data?.message?.keys || data?.keys || []
+        const values = data?.message?.values || data?.values || []
 
         return values.map((row) => {
             const event = {}
@@ -750,32 +746,24 @@ const eventResource = createResource({
             return {
                 name: event.name,
                 title: event.subject,
-                date: event.starts_on,
+                start_date: event.starts_on,
                 end_date: event.ends_on,
                 description: event.description,
-                color: event.color || '#7c3aed'
+                color: event.color || '#7c3aed',
+                status: event.status
             }
         })
     },
 
     onSuccess(data) {
-        events.value = data
         console.log('EVENTS', data)
+        events.value = data
     },
 
-    onError(err) {
-        console.error('EVENT ERROR', err)
-    },
+    onError(error) {
+        console.error('EVENT ERROR', error)
+    }
 })
-const formatDate = (date) => {
-    if (!date) return '-'
-
-    return new Date(date).toLocaleDateString('en-IN', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-    })
-}
 /* ----------------------------------
    FEE DETAILS
 ---------------------------------- */
