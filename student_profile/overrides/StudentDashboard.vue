@@ -364,30 +364,37 @@
                             </span>
                         </div>
 
-                        <div v-for="event in events" :key="event.name"
-                            class="border rounded-xl p-3 mb-2 hover:shadow-md transition">
-                            <div class="flex items-start justify-between">
+                        <template v-if="events.length">
 
-                                <div>
-                                    <h3 class="font-semibold text-sm text-gray-800">
-                                        {{ event.title }}
-                                    </h3>
+                            <div v-for="event in events" :key="event.name"
+                                class="border rounded-xl p-3 mb-2 hover:shadow-md transition">
+                                <div class="flex items-start justify-between">
 
-                                    <p class="text-xs text-gray-500 mt-1">
-                                        📅 {{ formatDate(event.date) }}
-                                    </p>
+                                    <div class="flex-1">
 
-                                    <p v-if="event.description" class="text-xs text-gray-500 mt-1">
-                                        {{ event.description }}
-                                    </p>
+                                        <h3 class="font-semibold text-sm text-gray-800">
+                                            {{ event.title }}
+                                        </h3>
+
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            📅 {{ event.date }}
+                                        </p>
+
+                                        <p v-if="event.description" class="text-xs text-gray-500 mt-1 line-clamp-2">
+                                            {{ event.description }}
+                                        </p>
+
+                                    </div>
+
+                                    <div class="w-3 h-3 rounded-full mt-1 ml-2"
+                                        :style="{ backgroundColor: event.color }"></div>
+
                                 </div>
-
-                                <div class="w-3 h-3 rounded-full mt-1" :style="{ backgroundColor: event.color }"></div>
-
                             </div>
-                        </div>
 
-                        <div v-if="!events.length" class="text-center text-xs text-gray-400 py-4">
+                        </template>
+
+                        <div v-else class="text-center text-xs text-gray-400 py-4">
                             No upcoming events
                         </div>
 
@@ -746,18 +753,31 @@ const eventResource = createResource({
             return {
                 name: event.name,
                 title: event.subject,
+
+                // formatted date directly
+                date: event.starts_on
+                    ? new Date(event.starts_on).toLocaleDateString('en-IN', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric'
+                    })
+                    : '-',
+
                 start_date: event.starts_on,
                 end_date: event.ends_on,
-                description: event.description,
+
+                description: stripHtml(event.description),
+
                 color: event.color || '#7c3aed',
+
                 status: event.status
             }
         })
     },
 
     onSuccess(data) {
-        console.log('EVENTS', data)
-        events.value = data
+        console.log('EVENTS TRANSFORMED', data)
+        events.value = Array.isArray(data) ? data : []
     },
 
     onError(error) {
