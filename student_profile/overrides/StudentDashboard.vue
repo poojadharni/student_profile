@@ -224,43 +224,46 @@
         </div>
 
         <!-- NOTIFICATIONS -->
+        <!-- NOTIFICATIONS -->
         <div class="mt-3">
             <div class="bg-white border rounded-xl p-4 shadow-sm">
 
-                <!-- HEADER -->
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-
-                    <div>
-                        <h2 class="text-sm font-semibold text-gray-800">
-                            Recent Notifications
-                        </h2>
-                        <p class="text-[11px] text-gray-400">
-                            Student updates & activities
-                        </p>
-                    </div>
-
-                    <button class="text-[11px] bg-blue-50 text-blue-600 px-3 py-1 rounded-full w-fit">
-                        View All
-                    </button>
-
+                <div class="mb-4">
+                    <h2 class="text-sm font-semibold text-gray-800">
+                        Recent Notifications
+                    </h2>
+                    <p class="text-[11px] text-gray-400">
+                        Student updates & activities
+                    </p>
                 </div>
 
-                <!-- GRID -->
                 <div class="grid grid-cols-1 xl:grid-cols-4 gap-3">
 
-                    <!-- 📝 EXAM CARD -->
+                    <!-- EXAMS -->
                     <div v-if="notifications.exam.length"
                         class="bg-blue-50 border border-blue-100 rounded-xl p-3 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="text-sm font-semibold text-blue-700">
+                                Exam Schedule
+                            </h2>
 
-                        <h2 class="text-sm font-semibold mb-3 text-blue-700">
-                            Exam Schedule
-                        </h2>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] px-2 py-1 rounded-full bg-blue-100 text-blue-700">
+                                    {{ notifications.exam.length }}
+                                </span>
 
-                        <div v-for="n in notifications.exam" :key="n.id" @click="openNotification(n)"
+                                <button v-if="notifications.exam.length > 1" @click="showAllExam = !showAllExam"
+                                    class="text-[10px] text-blue-600 hover:underline">
+                                    {{ showAllExam ? 'Show Less' : 'View All' }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div v-for="n in (showAllExam
+                            ? notifications.exam
+                            : notifications.exam.slice(0, 1))" :key="n.id" @click="openNotification(n)"
                             class="group cursor-pointer rounded-lg border bg-white hover:shadow-md hover:border-blue-300 transition-all p-3 mb-2">
-
                             <div class="flex items-start justify-between mb-2">
-
                                 <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white bg-blue-500">
                                     📝
                                 </div>
@@ -268,7 +271,6 @@
                                 <span class="text-[10px] text-gray-400">
                                     {{ n.time }}
                                 </span>
-
                             </div>
 
                             <h3 class="text-xs font-semibold text-gray-800 group-hover:text-blue-600">
@@ -278,23 +280,34 @@
                             <p class="text-[11px] text-gray-500 line-clamp-2">
                                 {{ n.message }}
                             </p>
-
                         </div>
                     </div>
 
-                    <!-- 💳 FEE CARD -->
+                    <!-- FEES -->
                     <div v-if="notifications.fee.length"
                         class="bg-green-50 border border-green-100 rounded-xl p-3 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="text-sm font-semibold text-green-700">
+                                Fee Alerts
+                            </h2>
 
-                        <h2 class="text-sm font-semibold mb-3 text-green-700">
-                            Fee Alerts
-                        </h2>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] px-2 py-1 rounded-full bg-green-100 text-green-700">
+                                    {{ notifications.fee.length }}
+                                </span>
 
-                        <div v-for="n in notifications.fee" :key="n.id" @click="openNotification(n)"
+                                <button v-if="notifications.fee.length > 1" @click="showAllFee = !showAllFee"
+                                    class="text-[10px] text-green-600 hover:underline">
+                                    {{ showAllFee ? 'Show Less' : 'View All' }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div v-for="n in (showAllFee
+                            ? notifications.fee
+                            : notifications.fee.slice(0, 1))" :key="n.id" @click="openNotification(n)"
                             class="group cursor-pointer rounded-lg border bg-white hover:shadow-md hover:border-green-300 transition-all p-3 mb-2">
-
                             <div class="flex items-start justify-between mb-2">
-
                                 <div
                                     class="w-8 h-8 rounded-lg flex items-center justify-center text-white bg-green-500">
                                     💳
@@ -303,7 +316,6 @@
                                 <span class="text-[10px] text-gray-400">
                                     {{ n.time }}
                                 </span>
-
                             </div>
 
                             <h3 class="text-xs font-semibold text-gray-800 group-hover:text-green-600">
@@ -313,23 +325,35 @@
                             <p class="text-[11px] text-gray-500 line-clamp-2">
                                 {{ n.message }}
                             </p>
-
                         </div>
                     </div>
 
-                    <!-- 📊 ATTENDANCE CARD -->
+                    <!-- ATTENDANCE -->
                     <div v-if="notifications.attendance.length"
                         class="bg-yellow-50 border border-yellow-100 rounded-xl p-3 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="text-sm font-semibold text-yellow-700">
+                                Attendance
+                            </h2>
 
-                        <h2 class="text-sm font-semibold mb-3 text-yellow-700">
-                            Attendance
-                        </h2>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] px-2 py-1 rounded-full bg-yellow-100 text-yellow-700">
+                                    {{ notifications.attendance.length }}
+                                </span>
 
-                        <div v-for="n in notifications.attendance" :key="n.id" @click="openNotification(n)"
+                                <button v-if="notifications.attendance.length > 1"
+                                    @click="showAllAttendance = !showAllAttendance"
+                                    class="text-[10px] text-yellow-600 hover:underline">
+                                    {{ showAllAttendance ? 'Show Less' : 'View All' }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div v-for="n in (showAllAttendance
+                            ? notifications.attendance
+                            : notifications.attendance.slice(0, 1))" :key="n.id" @click="openNotification(n)"
                             class="group cursor-pointer rounded-lg border bg-white hover:shadow-md hover:border-yellow-300 transition-all p-3 mb-2">
-
                             <div class="flex items-start justify-between mb-2">
-
                                 <div
                                     class="w-8 h-8 rounded-lg flex items-center justify-center text-white bg-yellow-500">
                                     📊
@@ -338,7 +362,6 @@
                                 <span class="text-[10px] text-gray-400">
                                     {{ n.time }}
                                 </span>
-
                             </div>
 
                             <h3 class="text-xs font-semibold text-gray-800 group-hover:text-yellow-600">
@@ -348,25 +371,36 @@
                             <p class="text-[11px] text-gray-500 line-clamp-2">
                                 {{ n.message }}
                             </p>
-
                         </div>
                     </div>
 
+                    <!-- EVENTS -->
                     <div class="bg-white border rounded-xl p-3 shadow-sm">
 
                         <div class="flex items-center justify-between mb-3">
-                            <h2 class="text-sm font-semibold text-gray-700">
+
+                            <h2 class="text-sm font-semibold text-purple-700">
                                 Upcoming Events
                             </h2>
 
-                            <span class="text-xs text-gray-400">
-                                {{ events.length }} Events
-                            </span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] px-2 py-1 rounded-full bg-purple-100 text-purple-700">
+                                    {{ events.length }}
+                                </span>
+
+                                <button v-if="events.length > 1" @click="showAllEvents = !showAllEvents"
+                                    class="text-[10px] text-purple-600 hover:underline">
+                                    {{ showAllEvents ? 'Show Less' : 'View All' }}
+                                </button>
+                            </div>
+
                         </div>
 
                         <template v-if="events.length">
 
-                            <div v-for="event in events" :key="event.name"
+                            <div v-for="event in (showAllEvents
+                                ? events
+                                : events.slice(0, 1))" :key="event.name"
                                 class="border rounded-xl p-3 mb-2 hover:shadow-md transition">
                                 <div class="flex items-start justify-between">
 
@@ -401,6 +435,7 @@
                     </div>
 
                 </div>
+
             </div>
         </div>
 
@@ -435,12 +470,6 @@
                         </div>
 
                     </div>
-
-                    <button @click="showModal = false" class="text-gray-400 hover:text-red-500 text-xl">
-
-                        ×
-                    </button>
-
                 </div>
 
                 <!-- BODY -->
