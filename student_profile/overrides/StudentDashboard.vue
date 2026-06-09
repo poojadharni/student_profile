@@ -504,6 +504,10 @@ import { createResource } from 'frappe-ui'
 const studentData = ref({})
 const activeTab = ref('personal')
 const events = ref([])
+const showAllExam = ref(false)
+const showAllFee = ref(false)
+const showAllAttendance = ref(false)
+const showAllEvents = ref(false)
 
 const personalDetails = computed(() => [
     {
@@ -770,40 +774,67 @@ const eventResource = createResource({
     onSuccess(data) {
         console.log('RAW EVENTS', data)
 
-        const keys = data?.keys || []
-        const values = data?.values || []
+        const keys =
+            data?.message?.keys ||
+            data?.keys ||
+            []
 
-        events.value = values.map((row) => {
-            const event = {}
+        const values =
+            data?.message?.values ||
+            data?.values ||
+            []
 
-            keys.forEach((key, index) => {
-                event[key] = row[index]
+        const now = new Date()
+
+        events.value = values
+            .map((row) => {
+                const event = {}
+
+                keys.forEach((key, index) => {
+                    event[key] = row[index]
+                })
+
+                return {
+                    name: event.name,
+                    title: event.subject,
+                    start_date: event.starts_on,
+                    end_date: event.ends_on,
+                    description: event.description || '',
+                    color: event.color || '#7c3aed',
+                    status: event.status
+                }
             })
 
-            return {
-                name: event.name,
-                title: event.subject,
+            // Only upcoming events
+            .filter((event) => {
+                if (!event.start_date) return false
 
-                date: event.starts_on
-                    ? new Date(event.starts_on).toLocaleDateString('en-IN', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric'
-                    })
-                    : '-',
+                const eventDate = new Date(event.start_date)
 
-                start_date: event.starts_on,
-                end_date: event.ends_on,
+                return eventDate >= now
+            })
 
-                description: event.description || '',
+            // Sort by upcoming date
+            .sort(
+                (a, b) =>
+                    new Date(a.start_date) -
+                    new Date(b.start_date)
+            )
 
-                color: event.color || '#7c3aed',
+            // Format date for UI
+            .map((event) => ({
+                ...event,
 
-                status: event.status
-            }
-        })
+                date: new Date(
+                    event.start_date
+                ).toLocaleDateString('en-IN', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                })
+            }))
 
-        console.log('FINAL EVENTS', events.value)
+        console.log('UPCOMING EVENTS', events.value)
     },
 
     onError(error) {
